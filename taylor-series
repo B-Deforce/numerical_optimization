@@ -1,0 +1,49 @@
+import sympy as sym
+from typing import Any
+import math
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Taylor approximation of f around x0
+class BaseFunction:
+    plt.style.use("ggplot")
+    
+    def __init__(self, symbol: str, function: Any):
+        self.x = sym.Symbol(symbol)
+        self.f = function
+
+    def taylor(self, x0: int, n: int):
+        """
+        Taylor approximation of order n of self.f around x0 
+        """
+        i = 0
+        T = 0
+        while i <= n:
+            T = T + (self.f.diff(self.x,i).subs(self.x,x0))/math.factorial(i)*(self.x-x0)**i
+            i += 1
+        return T
+        
+    def plot_approx(self, x0: int, n: int):
+        """
+        Plots Taylor approximation of order n of self.f around x0 
+        """
+        x_lims = [-10,10]
+        x1 = np.linspace(x_lims[0], x_lims[1], 800)
+        y1 = []
+        # loop through all orders (from 1 to n included)
+        for j in range(1,n+1):
+            T = self.taylor(x0=x0, n=j)
+            for k in x1:
+                y1.append(T.subs(self.x, k))
+            plt.plot(x1,y1,label=f"order {j}")
+            y1 = []
+        # plot original function
+        plt.plot(x1, [self.f.subs(self.x,i) for i in x1], label="f(x)")
+        plt.xlim(x_lims)
+        plt.ylim([-5,5])
+        plt.xlabel('x')
+        plt.ylabel('y')
+        plt.legend()
+        plt.grid(True)
+        plt.title('Taylor series approximation')
+        plt.show()
